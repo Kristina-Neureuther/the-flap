@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Flap - Chaos Theory</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #050811; /* Sehr tiefes, mystisches Dunkelblau */
+            overflow: hidden;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            user-select: none;
+        }
+        
+        /* Dezente Anleitung oben */
+        .instructions {
+            position: absolute;
+            top: 8%;
+            width: 100%;
+            text-align: center;
+            color: #5c697a;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            line-height: 1.6;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .game-title {
+            display: block;
+            font-size: 1.6rem;
+            font-weight: 300;
+            letter-spacing: 4px;
+            color: #ffffff;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .highlight {
+            color: #00f0ff; /* Leuchtendes Cyan */
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="instructions">
+    <span class="game-title">The Flap</span>
+    A single event can alter the course of a system forever.<br>
+    <span class="highlight">Press SPACEBAR or CLICK</span> to reshape the chaotic matrix.
+</div>
+
+<script>
+let currentA, currentB, currentC, currentD; // Die Chaos-Variablen
+let points = [];
+let maxPoints = 1800; // Anzahl der Partikel
+let butterflyScale = 1;
+let isFlapping = false;
+let flapTimer = 0;
+
+function setup() {
+    createCanvas(windowWidth, windowHeight);
+    triggerButterflyEffect(); // Initialisiere das erste Chaos-System
+}
+
+function draw() {
+    background(5, 8, 17, 15); // Sanfter Schweifeffekt
+    
+    // 1. CHAOS-SYSTEM IM HINTERGRUND
+    translate(width / 2, height * 0.55);
+    noStroke();
+    
+    for (let p of points) {
+        let nextX = sin(currentA * p.y) + currentC * cos(currentA * p.x);
+        let nextY = sin(currentB * p.x) + currentD * cos(currentB * p.y);
+        
+        p.x = nextX;
+        p.y = nextY;
+        
+        let screenX = p.x * (width * 0.18);
+        let screenY = p.y * (height * 0.22);
+        
+        let d = dist(0, 0, screenX, screenY);
+        fill(map(d, 0, width*0.3, 0, 255), 200, 255, 35);
+        
+        ellipse(screenX, screenY, 2, 2);
+    }
+    
+    // 2. DER SCHMETTERLING (Der "Flap"-Auslöser)
+    drawButterfly();
+}
+
+function drawButterfly() {
+    push();
+    resetMatrix();
+    translate(width / 2, height * 0.55);
+    
+    if (isFlapping) {
+        butterflyScale = map(sin(flapTimer), -1, 1, 0.2, 1.2);
+        flapTimer += 0.4;
+        if (flapTimer > Math.PI) {
+            isFlapping = false;
+            butterflyScale = 1;
+        }
+    }
+    
+    noStroke();
+    fill(255, 255, 255, 180);
+    
+    // Linker Flügel
+    push();
+    scale(butterflyScale, 1);
+    fill(0, 240, 255, 150);
+    bezier(0, 0, -40, -50, -80, -20, 0, 15);
+    bezier(0, 15, -60, 40, -40, 60, 0, 5);
+    pop();
+    
+    // Rechter Flügel
+    push();
+    scale(-butterflyScale, 1);
+    fill(0, 240, 255, 150);
+    bezier(0, 0, -40, -50, -80, -20, 0, 15);
+    bezier(0, 15, -60, 40, -40, 60, 0, 5);
+    pop();
+    
+    // Körper
+    fill(255, 255, 255);
+    ellipse(0, 0, 6, 35);
+    stroke(255, 255, 255);
+    line(0, -15, -8, -25);
+    line(0, -15, 8, -25);
+    pop();
+}
+
+function triggerButterflyEffect() {
+    isFlapping = true;
+    flapTimer = 0;
+    
+    currentA = random(-2.5, 2.5);
+    currentB = random(-2.5, 2.5);
+    currentC = random(-2.0, 2.0);
+    currentD = random(-2.0, 2.0);
+    
+    points = [];
+    for (let i = 0; i < maxPoints; i++) {
+        points.push({
+            x: random(-0.1, 0.1),
+            y: random(-0.1, 0.1)
+        });
+    }
+}
+
+function keyPressed() {
+    if (key === ' ') {
+        triggerButterflyEffect();
+    }
+}
+
+function mousePressed() {
+    if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
+        triggerButterflyEffect();
+    }
+}
+
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
+}
+</script>
+
+</body>
+</html>
