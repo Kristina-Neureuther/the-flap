@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Flap</title>
+    <title>The Flap - Chaos Theory</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
     <style>
         body {
@@ -50,24 +50,24 @@
 <div class="instructions">
     <span class="game-title">The Flap</span>
     A single event can alter the course of a system forever.<br>
-    <span class="highlight">Press SPACEBAR or CLICK</span> to reshape the chaotic matrix.
+    <span class="highlight">Press SPACEBAR or CLICK</span> 
 </div>
 
 <script>
-let currentA, currentB, currentC, currentD; // Die Chaos-Variablen
+let currentA, currentB, currentC, currentD; 
 let points = [];
-let maxPoints = 1800; // Anzahl der Partikel
-let butterflyScale = 1;
+let maxPoints = 1900; 
+let wingAngle = 0;
 let isFlapping = false;
-let flapTimer = 0;
+let flapSpeed = 0.25;
 
 function setup() {
     createCanvas(windowWidth, windowHeight);
-    triggerButterflyEffect(); // Initialisiere das erste Chaos-System
+    triggerButterflyEffect(); 
 }
 
 function draw() {
-    background(5, 8, 17, 15); // Sanfter Schweifeffekt
+    background(5, 8, 17, 20); // Perfekt ausbalancierter Schweifeffekt
     
     // 1. CHAOS-SYSTEM IM HINTERGRUND
     translate(width / 2, height * 0.55);
@@ -84,71 +84,105 @@ function draw() {
         let screenY = p.y * (height * 0.22);
         
         let d = dist(0, 0, screenX, screenY);
-        fill(map(d, 0, width*0.3, 0, 255), 200, 255, 35);
+        // Edler Farbverlauf von Cyan zu Tiefblau/Violett mit hoher Transparenz
+        fill(map(nextX, -2, 2, 0, 150), map(d, 0, width*0.3, 180, 255), 255, 25);
         
-        ellipse(screenX, screenY, 2, 2);
+        ellipse(screenX, screenY, 1.8, 1.8);
     }
     
-    // 2. DER SCHMETTERLING (Der "Flap"-Auslöser)
-    drawButterfly();
+    // 2. DER NEUE EDLE SCHMETTERLING
+    drawPremiumButterfly();
 }
 
-function drawButterfly() {
+function drawPremiumButterfly() {
     push();
     resetMatrix();
     translate(width / 2, height * 0.55);
     
+    // Schlagen der Flügel animieren
     if (isFlapping) {
-        butterflyScale = map(sin(flapTimer), -1, 1, 0.2, 1.2);
-        flapTimer += 0.4;
-        if (flapTimer > Math.PI) {
+        wingAngle += flapSpeed;
+        if (wingAngle > Math.PI) {
             isFlapping = false;
-            butterflyScale = 1;
+            wingAngle = 0;
         }
     }
     
+    // Berechnung des Stauchungsfaktors für das Schlagen (3D-Effekt)
+    let wingScaleX = isFlapping ? cos(wingAngle) : 1;
+    
+    // --- FLÜGEL ZEICHNEN ---
     noStroke();
-    fill(255, 255, 255, 180);
     
-    // Linker Flügel
+    // Rechter Flügel (Vorder- und Hinterflügel geschichtet für Tiefe)
     push();
-    scale(butterflyScale, 1);
-    fill(0, 240, 255, 150);
-    bezier(0, 0, -40, -50, -80, -20, 0, 15);
-    bezier(0, 15, -60, 40, -40, 60, 0, 5);
+    scale(wingScaleX, 1);
+    
+    // Großer Oberflügel
+    fill(0, 240, 255, 40); // Äußerer Glow
+    bezier(0, -5, 45, -55, 85, -35, 5, 0);
+    fill(0, 210, 255, 120); // Kern
+    bezier(0, -5, 40, -48, 75, -30, 5, 0);
+    
+    // Kleiner Unterflügel
+    fill(0, 150, 255, 50);
+    bezier(0, 2, 55, 25, 45, 50, 2, 10);
+    fill(0, 120, 255, 110);
+    bezier(0, 2, 48, 22, 40, 42, 2, 10);
     pop();
     
-    // Rechter Flügel
+    // Linker Flügel (Spiegelung durch negative Scale)
     push();
-    scale(-butterflyScale, 1);
-    fill(0, 240, 255, 150);
-    bezier(0, 0, -40, -50, -80, -20, 0, 15);
-    bezier(0, 15, -60, 40, -40, 60, 0, 5);
+    scale(-wingScaleX, 1);
+    
+    // Großer Oberflügel
+    fill(0, 240, 255, 40);
+    bezier(0, -5, 45, -55, 85, -35, 5, 0);
+    fill(0, 210, 255, 120);
+    bezier(0, -5, 40, -48, 75, -30, 5, 0);
+    
+    // Kleiner Unterflügel
+    fill(0, 150, 255, 50);
+    bezier(0, 2, 55, 25, 45, 50, 2, 10);
+    fill(0, 120, 255, 110);
+    bezier(0, 2, 48, 22, 40, 42, 2, 10);
     pop();
     
-    // Körper
-    fill(255, 255, 255);
-    ellipse(0, 0, 6, 35);
-    stroke(255, 255, 255);
-    line(0, -15, -8, -25);
-    line(0, -15, 8, -25);
+    // --- FILIGRANER KÖRPER ---
+    // Sanfter Glow hinter dem Körper
+    fill(255, 255, 255, 30);
+    ellipse(0, 0, 8, 38);
+    
+    // Scharfer weißer Rumpf
+    fill(245, 248, 255);
+    ellipse(0, -2, 4, 28); // Hauptkörper
+    ellipse(0, -16, 5.5, 5.5); // Kopf
+    
+    // Hauchdünne, elegante Fühler
+    stroke(230, 240, 255, 200);
+    strokeWeight(0.8);
+    noFill();
+    bezier(0, -17, 3, -24, 6, -26, 10, -26); // Rechts
+    bezier(0, -17, -3, -24, -6, -26, -10, -26); // Links
+    
     pop();
 }
 
 function triggerButterflyEffect() {
     isFlapping = true;
-    flapTimer = 0;
+    wingAngle = 0;
     
-    currentA = random(-2.5, 2.5);
-    currentB = random(-2.5, 2.5);
-    currentC = random(-2.0, 2.0);
-    currentD = random(-2.0, 2.0);
+    // Mathematisch optimierte Werte für spektakuläre, ästhetische Netze
+    currentA = random(-2.3, 2.3);
+    currentB = random(-2.3, 2.3);
+    currentC = random(-1.9, 1.9);
+    currentD = random(-1.9, 1.9);
     
     points = [];
     for (let i = 0; i < maxPoints; i++) {
         points.push({
-            x: random(-0.1, 0.1),
-            y: random(-0.1, 0.1)
+            x: random(-0.05, 0.05),
+            y: random(-0.05, 0.05)
         });
     }
 }
