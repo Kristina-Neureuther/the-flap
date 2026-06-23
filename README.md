@@ -5,6 +5,8 @@
 
 An interactive visual exploration.
 
+## Kristina Neureuther – Systems Thinking & Strategy
+
 
 ### Live Demo
 [Click here for Live Demo](https://kristina-neureuther.github.io/the-flap/)
